@@ -1,5 +1,5 @@
 //import React from 'react';
-import { Menu, Sparkles, Share, MoreHorizontal, CloudCheck } from 'lucide-react';
+import { Menu, Sparkles, Save, MoreHorizontal, CloudCheck } from 'lucide-react';
 
 interface HeaderProps {
   onToggleSidebar?: () => void;
@@ -56,8 +56,8 @@ const Header = ({ onToggleSidebar, isSaving = false }:HeaderProps) => {
 
         {/* Share Button */}
         <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-900 dark:text-slate-50 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-md transition-colors">
-          <Share size={16} />
-          <span>Share</span>
+          <Save size={16} />
+          <span>Save</span>
         </button>
 
         {/* More Menu */}

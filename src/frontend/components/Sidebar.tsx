@@ -17,7 +17,7 @@ interface SidebarProps {
 
 const Sidebar = ({ activeItem = 'home' }:SidebarProps) => {
   return (
-    <aside className="w-64 h-[90vh] flex flex-col bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 font-sans transition-colors duration-200 fixed">
+    <aside className="w-64 h-[90vh] flex flex-col bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 font-sans transition-colors duration-200 fixed z-900">
       
       {/* 1. Workspace Profile & New Note Button */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-700">

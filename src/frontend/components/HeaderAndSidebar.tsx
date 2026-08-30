@@ -45,7 +45,7 @@ function HeaderAndSidebar() {
 				<Sidebar />
 			</div>
 		</div>
-		<main>
+		<main className="overflow-y-auto">
 			<Outlet />
 		</main>
       

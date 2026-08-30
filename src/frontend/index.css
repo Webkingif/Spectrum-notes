@@ -1,1 +1,18 @@
+
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-brand-primary: #F97316;
+  --color-brand-subdued: #FFEDD5;
+  --color-brand-subdued-dark: #431407;
+}
+
+/* Tiptap Placeholder Styling */
+.tiptap p.is-editor-empty:first-child::before {
+  color: #94a3b8; 
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
