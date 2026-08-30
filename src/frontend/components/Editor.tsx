@@ -1,4 +1,5 @@
-import {ReactNode} from 'react';
+import { ReactNode } from 'react';
+import { useOutletContext } from "react-router-dom";
 import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
@@ -10,7 +11,14 @@ interface TiptapEditorProps {
   onChange?: (json: any) => void;
 }
 
-const TiptapEditor= ({ onChange }:TiptapEditorProps) => {
+interface EditorContext {
+  setEditorContent: (json: any) => void;
+  openAiWithText: (text: string) => void;
+}
+
+const TiptapEditor = ({ onChange }: TiptapEditorProps) => {
+  const { setEditorContent, openAiWithText } = useOutletContext<EditorContext>();
+  
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -20,18 +28,21 @@ const TiptapEditor= ({ onChange }:TiptapEditorProps) => {
       SlashCommandExtension,
     ],
     content: '',
+    // Combined both onUpdate actions into one!
     onUpdate: ({ editor }) => {
-      if (onChange) onChange(editor.getJSON());
+      const json = editor.getJSON();
+      if (onChange) onChange(json);
+      setEditorContent(json);
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose-base prose-slate dark:prose-invert max-w-none focus:outline-none min-h-[500px]',
+        class: 'prose prose-sm sm:prose-base prose-slate dark:prose-invert max-w-none focus:outline-none min-h-[700px] [--tw-prose-bullets:#000] dark:[--tw-prose-invert-bullets:#fff]',
       },
     },
   });
 
   return (
-    <div className="w-full max-w-[750px] mx-auto mt-0 sm:mt-8 bg-white dark:bg-slate-800 p-4 sm:p-8 md:p-12 sm:rounded-lg shadow-none sm:shadow-sm border-y sm:border-x border-slate-200 dark:border-slate-700 max-h-[70vh] overflow-y-auto">
+    <div className="w-[90%] md:w-full max-w-[750px] mx-auto mt-0 sm:mt-8 bg-white dark:bg-slate-800 p-4 sm:p-8 md:p-12 sm:rounded-lg shadow-none sm:shadow-sm border-y sm:border-x border-slate-200 dark:border-slate-700 max-h-[85vh] overflow-y-auto">
       
       {/* THE BUBBLE MENU */}
       {editor && (
@@ -42,8 +53,9 @@ const TiptapEditor= ({ onChange }:TiptapEditorProps) => {
           {/* AI Action Button (Orange) */}
           <button 
             onClick={() => {
-              const selectedText = editor.state.doc.textBetween(editor.state.selection.from, editor.state.selection.to);
-              console.log('AI Triggered for text:', selectedText);
+              const { from, to } = editor.state.selection;
+              const selectedText = editor.state.doc.textBetween(from, to);
+              openAiWithText(selectedText);
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 dark:bg-[#431407] text-orange-600 dark:text-orange-500 hover:bg-orange-200 dark:hover:bg-orange-900/80 rounded-md text-sm font-medium transition-colors mr-2"
           >
@@ -87,7 +99,7 @@ interface MenuButtonProps {
   icon: ReactNode;
 }
 
-const MenuButton = ({ onClick, isActive, icon }:MenuButtonProps) => (
+const MenuButton = ({ onClick, isActive, icon }: MenuButtonProps) => (
   <button
     onClick={onClick}
     className={`p-1.5 rounded-md transition-colors ${

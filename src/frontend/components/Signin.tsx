@@ -21,7 +21,7 @@ export default function Signin(){
 
 
   return (
-    <main className="flex items-center justify-center py-4 px-4 md:px-8 lg:h-screen">
+    <main className="flex items-center justify-center py-4 px-1 md:px-8 lg:h-screen">
       <div className="max-w-6xl border border-slate-200 bg-white shadow-sm p-4 rounded-lg lg:p-6 dark:border-neutral-700 dark:bg-neutral-800">
         <div className="grid md:grid-cols-2 items-center gap-x-8 gap-y-12">
           <div className="max-w-md mx-auto w-full p-2 md:p-4">

@@ -1,4 +1,4 @@
-
+import {Link} from "react-router-dom";
 import { 
   Search, 
   Home, 
@@ -25,7 +25,7 @@ const Sidebar = ({ activeItem = 'home' }:SidebarProps) => {
           <div className="w-6 h-6 rounded bg-orange-500 flex items-center justify-center text-white font-bold text-xs">
             W
           </div>
-          <span className="font-medium text-slate-900 dark:text-slate-50 text-sm">My Workspace</span>
+          <Link to="/notes"><span className="font-medium text-slate-900 hover:text-orange-500 active:underline dark:text-slate-50 text-sm">My Workspace</span></Link>
         </div>
         
         {/* Primary Action Button (Brand Orange) */}
@@ -41,11 +41,11 @@ const Sidebar = ({ activeItem = 'home' }:SidebarProps) => {
         {/* Core Links */}
         <div className="space-y-1">
           <SidebarItem icon={<Search size={18} />} label="Search" />
-          <SidebarItem 
+          <Link to="/notes"><SidebarItem 
             icon={<Home size={18} />} 
-            label="Home" 
+            label="All Notes" 
             isActive={activeItem === 'home'} 
-          />
+          /></Link>
           <SidebarItem icon={<Star size={18} />} label="Favorites" />
           <SidebarItem 
             icon={<MessageSquare size={18} />} 
@@ -90,7 +90,7 @@ interface SidebarItemProps {
 const SidebarItem = ({ icon, label, isActive = false }:SidebarItemProps) => {
   return (
     <button
-      className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+      className={`w-full flex cursor-pointer items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
         isActive 
           ? 'bg-orange-100 dark:bg-[#431407] text-orange-600 dark:text-orange-500' // Active state uses your brand colors
           : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-50'
