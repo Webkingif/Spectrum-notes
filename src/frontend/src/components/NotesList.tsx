@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, FileText, ChevronRight, Star } from 'lucide-react';
-import { mockNotes } from '../data/mockNotes';
+import { mockNotes } from '../../data/mockNotes';
 
 export default function NotesList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  
+
   const navigate = useNavigate();
 
   // 1. Automatically extract all unique tags from your notes
@@ -18,8 +18,8 @@ export default function NotesList() {
 
   // 2. The toggle function for tag pills
   const toggleTag = (tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
+    setSelectedTags(prev =>
+      prev.includes(tag)
         ? prev.filter(t => t !== tag) // Remove if already selected
         : [...prev, tag] // Add if not selected
     );
@@ -30,16 +30,16 @@ export default function NotesList() {
     return mockNotes
       .filter((note) => {
         // Search Filter
-        const matchesSearch = 
+        const matchesSearch =
           note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           note.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-        
+
         // Favorite Filter
         const matchesFavorite = showFavoritesOnly ? note.isFavorite : true;
-        
+
         // Tag Filter (Returns true if NO tags are selected, OR if the note has AT LEAST ONE selected tag)
-        const matchesTags = selectedTags.length === 0 
-          ? true 
+        const matchesTags = selectedTags.length === 0
+          ? true
           : note.tags.some(tag => selectedTags.includes(tag));
 
         // Note must pass all active filters
@@ -50,7 +50,7 @@ export default function NotesList() {
 
   return (
     <div className="max-w-5xl mx-auto w-full p-4 sm:p-8">
-      
+
       {/* HEADER: Title and New Note Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
@@ -81,17 +81,16 @@ export default function NotesList() {
           />
         </div>
 
-       {/* Filter Row (Now with horizontal scrolling!) */}
+        {/* Filter Row (Now with horizontal scrolling!) */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          
+
           {/* Favorite Toggle Button */}
           <button
             onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border shrink-0 ${
-              showFavoritesOnly
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border shrink-0 ${showFavoritesOnly
                 ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20 text-amber-600 dark:text-amber-400'
                 : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
-            }`}
+              }`}
           >
             <Star size={14} className={showFavoritesOnly ? "fill-amber-500" : ""} />
             Favorites
@@ -106,11 +105,10 @@ export default function NotesList() {
               <button
                 key={tag}
                 onClick={() => toggleTag(tag)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border whitespace-nowrap shrink-0 ${
-                  isSelected
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border whitespace-nowrap shrink-0 ${isSelected
                     ? 'bg-orange-50 dark:bg-orange-500/10 border-orange-200 dark:border-orange-500/20 text-orange-700 dark:text-orange-400'
                     : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
-                }`}
+                  }`}
               >
                 #{tag}
               </button>
@@ -124,7 +122,7 @@ export default function NotesList() {
         {filteredAndSortedNotes.length > 0 ? (
           <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
             {filteredAndSortedNotes.map((note) => (
-              <div 
+              <div
                 key={note.id}
                 onClick={() => navigate(`/note/${note.id}`)}
                 className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors group"
@@ -153,7 +151,7 @@ export default function NotesList() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="shrink-0 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity ml-4">
                   <ChevronRight size={20} />
                 </div>

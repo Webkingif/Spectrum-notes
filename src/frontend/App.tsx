@@ -1,22 +1,21 @@
-import { useState } from 'react';
+
 import './App.css';
-import Header from "./components/Header.tsx";
-import Sidebar from "./components/Sidebar.tsx";
-import {Routes, Route, Outlet} from "react-router-dom";
-import HeaderAndSidebar from "./components/HeaderAndSidebar";
-import ProtectedRoute from "./components/ProtectedRoute";
-import NotesList from "./components/NotesList";
-import TiptapEditor from "./components/Editor";
-import Home from "./components/Home";
-import Signin from "./components/Signin";
-import SignUp from "./components/SignUp";
+
+import { Routes, Route } from "react-router-dom";
+import HeaderAndSidebar from "./src/components/HeaderAndSidebar";
+import ProtectedRoute from "./src/components/ProtectedRoute";
+import NotesList from "./src/components/NotesList";
+import TiptapEditor from "./src/pages/Editor";
+import Home from "./src/pages/Home";
+import Signin from "./src/pages/Signin";
+import SignUp from "./src/pages/SignUp";
 
 function App() {
 
-	return(
+	return (
 		<>
 			<Routes>
-			    {/* Public Routes */}
+				{/* Public Routes */}
 				<Route path="/" element={<Home />} />
 				<Route path="/signin" element={<Signin />} />
 				<Route path="/signup" element={<SignUp />} />
@@ -25,17 +24,17 @@ function App() {
 				{/* Protected Routes */}
 				<Route element={<ProtectedRoute />}>
 					<Route path="/note" element={<HeaderAndSidebar />}>
-						
+
 						<Route path=":id" element={<TiptapEditor />} />
 					</Route>
 				</Route>
 
-				
-				
-				
+
+
+
 				{/* catch all routes */}
 				<Route path="*" element={"catch all"} />
-				
+
 			</Routes>
 		</>
 	)

@@ -1,27 +1,11 @@
-import React, { useState } from 'react';
-import {Link} from "react-router-dom";
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from "react-router-dom";
 
-export default function Signin(){
+export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // Get original page or default to /dashboard
-  const from = location.state?.from?.pathname || '/';
-
-  const handleSignIn = (e) => {
-    e.preventDefault();
-    // Perform authentication logic here...
-    //localStorage.setItem('token', 'your-auth-token');
-
-    // Redirect to where they were going
-    navigate(from, { replace: true });
-  };
-
 
   return (
-    <main className="flex items-center justify-center py-4 px-1 md:px-8 lg:h-screen">
+    <main className="flex items-center justify-center py-4 px-4 md:px-8 lg:h-screen">
       <div className="max-w-6xl border border-slate-200 bg-white shadow-sm p-4 rounded-lg lg:p-6 dark:border-neutral-700 dark:bg-neutral-800">
         <div className="grid md:grid-cols-2 items-center gap-x-8 gap-y-12">
           <div className="max-w-md mx-auto w-full p-2 md:p-4">
@@ -35,7 +19,43 @@ export default function Signin(){
               </a>
             </div>
 
-            <form className="space-y-6" onSubmit={handleSignIn}>
+            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="firstName"
+                    className="mb-2 text-slate-900 font-medium text-sm inline-block dark:text-slate-50"
+                  >
+                    First name
+                  </label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    placeholder="John"
+                    required
+                    className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-orange-600 dark:text-slate-50 dark:bg-neutral-700 dark:outline-neutral-600"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="lastName"
+                    className="mb-2 text-slate-900 font-medium text-sm inline-block dark:text-slate-50"
+                  >
+                    Last name
+                  </label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    placeholder="Doe"
+                    required
+                    className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-orange-600 dark:text-slate-50 dark:bg-neutral-700 dark:outline-neutral-600"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label
                   htmlFor="email"
@@ -98,11 +118,11 @@ export default function Signin(){
                 />
               </div>
 
-              <div className="flex items-start flex-wrap gap-2">
-                <label className="flex items-center group has-[input:checked]:text-slate-900">
+              <div className="flex items-center">
+                <label className="flex items-center group has-[input:checked]:text-slate-900 cursor-pointer">
                   <input
-                    id="remember"
-                    name="remember"
+                    id="terms"
+                    name="terms"
                     type="checkbox"
                     required
                     className="sr-only"
@@ -122,23 +142,22 @@ export default function Signin(){
                     </svg>
                   </span>
                   <span className="ml-3 text-sm text-slate-700 dark:text-slate-300">
-                    Remember me
+                    I agree to the{' '}
+                    <a
+                      href="#"
+                      className="text-orange-700 dark:text-orange-500 font-medium hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded"
+                    >
+                      Terms and Conditions
+                    </a>
                   </span>
                 </label>
-
-                <a
-                  href="#"
-                  className="ml-auto text-sm font-medium text-orange-700 dark:text-orange-500 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded"
-                >
-                  Forgot password?
-                </a>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2 px-3.5 text-sm rounded-md font-semibold cursor-pointer tracking-wide text-white border border-orange-600 bg-orange-500 hover:bg-orange-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+                className="w-full py-2 px-3.5 text-sm rounded-md font-semibold cursor-pointer tracking-wide text-white border border-orange-600 bg-orange-600 hover:bg-orange-700 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
               >
-                Sign in
+                Create account
               </button>
             </form>
 
@@ -186,17 +205,17 @@ export default function Signin(){
                     d="M256 120V0C187.62 0 123.333 26.629 74.98 74.98a259.849 259.849 0 0 0-22.158 25.235l86.308 86.308C162.883 146.72 206.376 120 256 120z"
                   />
                 </svg>
-                Sign in with Google
+                Sign up with Google
               </a>
             </div>
 
             <div className="mt-6 text-slate-900 text-sm text-center dark:text-slate-50">
-              Don't have an account?{' '}
+              Already have an account?{' '}
               <Link
-                to="/signup"
+                to="/signin"
                 className="text-orange-700 hover:underline ml-1 font-medium dark:text-orange-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 rounded"
               >
-                Sign up
+                Sign in
               </Link>
             </div>
           </div>
@@ -205,14 +224,13 @@ export default function Signin(){
             <img
               src="https://readymadeui.com/team-image.webp"
               className="w-full h-full object-cover"
-              alt="login img"
+              alt="signup img"
             />
             <div className="absolute inset-0 m-auto max-w-sm p-6 flex items-center justify-center">
               <div>
-                <h1 className="text-white text-3xl font-bold">Sign in</h1>
+                <h1 className="text-white text-3xl font-bold">Sign up</h1>
                 <p className="text-slate-100 text-base font-medium mt-6 leading-relaxed">
-                  Sign in to your account and explore a world of possibilities.
-                  Your journey begins here.
+                  Create an account and explore a world of possibilities. Your journey begins here.
                 </p>
               </div>
             </div>
@@ -222,4 +240,3 @@ export default function Signin(){
     </main>
   );
 }
-

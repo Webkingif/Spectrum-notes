@@ -1,9 +1,9 @@
-import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Extension } from '@tiptap/core';
 import Suggestion from '@tiptap/suggestion';
 import { ReactRenderer } from '@tiptap/react';
 import tippy from "tippy.js";
- 
+
 
 import type { Instance as TippyInstance } from 'tippy.js';
 import { Heading1, Heading2, List, Sparkles, Type } from 'lucide-react';
@@ -44,7 +44,7 @@ const getCommandItems = (query: string) => {
       icon: <Sparkles size={18} className="text-orange-500" />,
       command: ({ editor, range }: any) => {
         editor.chain().focus().deleteRange(range).run();
-        alert("AI Assistant triggered! (Replace this with your modal logic later)"); 
+        alert("AI Assistant triggered! (Replace this with your modal logic later)");
       },
     },
   ];
@@ -84,11 +84,10 @@ const CommandList = forwardRef((props: any, ref) => {
         <button
           key={index}
           onClick={() => props.command(item)}
-          className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-left ${
-            index === selectedIndex
+          className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-left ${index === selectedIndex
               ? 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-50'
               : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'
-          }`}
+            }`}
         >
           <div className="flex items-center justify-center w-6 h-6 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md">
             {item.icon}
