@@ -5,7 +5,7 @@ import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Bold, Italic, Strikethrough, Sparkles } from 'lucide-react';
-import { SlashCommandExtension } from './SlashCommand';
+import { SlashCommandExtension } from '../components/SlashCommand';
 
 interface TiptapEditorProps {
   onChange?: (json: any) => void;
@@ -103,8 +103,8 @@ const MenuButton = ({ onClick, isActive, icon }: MenuButtonProps) => (
   <button
     onClick={onClick}
     className={`p-1.5 rounded-md transition-colors ${isActive
-        ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-50'
-        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+      ? 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-50'
+      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
       }`}
   >
     {icon}
