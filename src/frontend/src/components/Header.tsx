@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Menu, Sparkles, Save, MoreHorizontal, CloudCheck, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import {useAuth} from "../context/AuthContext";
+
 interface HeaderProps {
   onToggleSidebar?: () => void;
   onSave?: () => void;
@@ -14,6 +16,8 @@ const Header = ({ onToggleSidebar, onSave, isSavedToCloud, onToggleAiChat }: Hea
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const {logout} = useAuth();
+
 
   // 2. Close dropdown when clicking outside
   useEffect(() => {
@@ -28,6 +32,7 @@ const Header = ({ onToggleSidebar, onSave, isSavedToCloud, onToggleAiChat }: Hea
 
   const handleSignOut = () => {
     // Navigate back to sign in
+	logout();
     navigate('/signin');
   };
 
@@ -89,6 +94,14 @@ const Header = ({ onToggleSidebar, onSave, isSavedToCloud, onToggleAiChat }: Hea
         >
           <Save size={16} />
           <span>Save</span>
+        </button>
+		
+	<button
+          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-900 dark:text-slate-50 hover:bg-slate-200 active:bg-slate-400 dark:hover:bg-slate-800 rounded-md transition-colors"
+          onClick={handleSignOut}
+        >
+          <LogOut size={16} />
+          <span>Logout</span>
         </button>
 
         {/* More Menu (visible ONLY on mobile) */}

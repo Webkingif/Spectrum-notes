@@ -1,18 +1,28 @@
 // src/server.js
 
-import express from 'express';
+import express, {Application} from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+import noteRoutes from './routes/noteRoutes';
+import authRoutes from "./routes/authRoutes";
+import aiRoutes from "./routes/aiRoutes";
+import {apiLimiter} from "./middlewares/rateLimiter";
+
 // Load environment variables
 dotenv.config();
 
-const app = express();
+const app:Application = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json()); // Allows Express to parse JSON bodies
+
+app.use("/api", apiLimiter);
+app.use('/api/notes', noteRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI as string)

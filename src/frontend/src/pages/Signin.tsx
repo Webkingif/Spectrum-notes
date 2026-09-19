@@ -1,34 +1,60 @@
 import { useState } from 'react';
 import { Link } from "react-router-dom";
 import { useNavigate, useLocation } from 'react-router-dom';
+import {useAuth} from "../context/AuthContext";
 
 export default function Signin() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+ const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  
+  const {login} = useAuth();
 
   // Get original page or default to /dashboard
   const from = location.state?.from?.pathname || '/';
 
-  const handleSignIn = (e) => {
+  const handleSignIn = async (e:React.FormEvent) => {
     e.preventDefault();
-    // Perform authentication logic here...
-    //localStorage.setItem('token', 'your-auth-token');
-
-    // Redirect to where they were going
-    navigate(from, { replace: true });
+    setError("");
+	setIsLoading(true);
+	try{
+		const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/login`,{
+			method: "POST",
+			headers: {
+				"Content-Type":"application/json",
+			},
+			body: JSON.stringify({email, password})
+		});
+		const data = await response.json();
+		if(!response.ok){
+			throw new Error(data.message || "Failed to sign in");
+		};
+		
+		login(data);
+		navigate("/notes");
+		
+	}catch(error:any){
+		console.error("Login error:", error);
+		setError(error.message);
+	}finally{
+		setIsLoading(false);
+	}
   };
 
 
   return (
-    <main className="flex items-center justify-center py-4 px-1 md:px-8 lg:h-screen">
+    <main className="flex items-center justify-center py-4 px-1 md:px-8 lg:h-[90%]">
       <div className="max-w-6xl border border-slate-200 bg-white shadow-sm p-4 rounded-lg lg:p-6 dark:border-neutral-700 dark:bg-neutral-800">
         <div className="grid md:grid-cols-2 items-center gap-x-8 gap-y-12">
           <div className="max-w-md mx-auto w-full p-2 md:p-4">
             <div className="inline-block mb-10">
-              <a href="#">
+              <a href="/">
                 <img
-                  src="https://readymadeui.com/readymadeui.svg"
+                  src="/android-chrome-192x192.png"
                   alt="logo"
                   className="w-40 block dark:invert dark:brightness-100"
                 />
@@ -36,6 +62,7 @@ export default function Signin() {
             </div>
 
             <form className="space-y-6" onSubmit={handleSignIn}>
+			{error && <div className= "text-red-500 text-sm bg-red-50 p-3 rounded">{errpr}</div>}
               <div>
                 <label
                   htmlFor="email"
@@ -44,6 +71,7 @@ export default function Signin() {
                   Email
                 </label>
                 <input
+				onChange={(e)=>setEmail(e.target.value)}
                   type="email"
                   id="email"
                   name="email"
@@ -89,6 +117,7 @@ export default function Signin() {
                 </button>
 
                 <input
+				onChange={(e)=>setPassword(e.target.value)}
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   name="password"
@@ -99,32 +128,7 @@ export default function Signin() {
               </div>
 
               <div className="flex items-start flex-wrap gap-2">
-                <label className="flex items-center group has-[input:checked]:text-slate-900">
-                  <input
-                    id="remember"
-                    name="remember"
-                    type="checkbox"
-                    required
-                    className="sr-only"
-                  />
-                  <span
-                    className="flex h-4 w-4 shrink-0 items-center justify-center rounded outline-1 outline-slate-300 dark:outline-neutral-600 bg-white dark:bg-neutral-700 group-has-[input:checked]:bg-orange-600 group-has-[input:checked]:outline-orange-600 group-focus-within:outline-2 group-focus-within:outline-orange-600"
-                    aria-hidden="true"
-                  >
-                    <svg
-                      className="size-3 text-white opacity-0 group-has-[input:checked]:opacity-100"
-                      viewBox="0 0 12 10"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M1 5l3 3 7-7" />
-                    </svg>
-                  </span>
-                  <span className="ml-3 text-sm text-slate-700 dark:text-slate-300">
-                    Remember me
-                  </span>
-                </label>
+                
 
                 <a
                   href="#"
@@ -138,7 +142,7 @@ export default function Signin() {
                 type="submit"
                 className="w-full py-2 px-3.5 text-sm rounded-md font-semibold cursor-pointer tracking-wide text-white border border-orange-600 bg-orange-500 hover:bg-orange-600 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
               >
-                Sign in
+                {isLoading ? "Signing in..." : "Sign In"}
               </button>
             </form>
 

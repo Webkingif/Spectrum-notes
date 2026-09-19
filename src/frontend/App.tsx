@@ -20,9 +20,10 @@ function App() {
 				<Route path="/signin" element={<Signin />} />
 				<Route path="/signup" element={<SignUp />} />
 
-				<Route path="/notes" element={<NotesList />} />
+				
 				{/* Protected Routes */}
 				<Route element={<ProtectedRoute />}>
+				<Route path="/notes" element={<NotesList />} />
 					<Route path="/note" element={<HeaderAndSidebar />}>
 
 						<Route path=":id" element={<TiptapEditor />} />

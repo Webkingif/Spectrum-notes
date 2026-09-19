@@ -1,25 +1,76 @@
 import { useState } from 'react';
 import { Link } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import {useAuth} from "../context/AuthContext";
+
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [email, setEmail]= useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const navigate = useNavigate();
+  const {login} = useAuth();
+  
+  const handleSignup = async(e:React.FormEvent)=>{
+	e.preventDefault();
+	setError("");
+	
+	if(password!== confirmPassword){
+		setError("Passwords do not match");
+		return;
+	}
+	
+	setIsLoading(true);
+	
+	try{
+	//Create new user
+		const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/register`,{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({email, password})
+		})
+		
+		const data = await response.json();
+		
+		if(!response.ok){
+			throw new Error(data.message || "Failed to create account")
+		}
+		
+		login(data);
+		navigate("/note/new");
+	}catch(err:any){
+		console.error("Signup error:", err);
+		setError(err.message);
+	}finally{
+		setIsLoading(false);
+	}
+  }
+  
 
   return (
-    <main className="flex items-center justify-center py-4 px-4 md:px-8 lg:h-screen">
+    <main className="flex items-center justify-center py-4 px-4 md:px-8 lg:h-[90%]">
       <div className="max-w-6xl border border-slate-200 bg-white shadow-sm p-4 rounded-lg lg:p-6 dark:border-neutral-700 dark:bg-neutral-800">
         <div className="grid md:grid-cols-2 items-center gap-x-8 gap-y-12">
           <div className="max-w-md mx-auto w-full p-2 md:p-4">
             <div className="inline-block mb-10">
-              <a href="#">
+              <a href="/">
                 <img
-                  src="https://readymadeui.com/readymadeui.svg"
+                  src="/android-chrome-192x192.png"
                   alt="logo"
                   className="w-40 block dark:invert dark:brightness-100"
                 />
               </a>
             </div>
 
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-6" onSubmit={handleSignup}>
+			{error && <div className="text-red-500 text-sm bg-red-50 p-3 rounded">{error}</div>}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label
@@ -68,6 +119,7 @@ export default function SignUp() {
                   id="email"
                   name="email"
                   placeholder="john@readymadeui.com"
+				  onChange={(e)=>setEmail(e.target.value)}
                   required
                   className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-orange-600 dark:text-slate-50 dark:bg-neutral-700 dark:outline-neutral-600"
                 />
@@ -112,6 +164,54 @@ export default function SignUp() {
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   name="password"
+				  onChange={(e)=> setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-orange-600 dark:text-slate-50 dark:bg-neutral-700 dark:outline-neutral-600"
+                />
+              </div>
+			  
+			  
+			   <div className="relative">
+                <label
+                  htmlFor="confirmPassword"
+                  className="mb-2 text-slate-900 font-medium text-sm inline-block dark:text-slate-50"
+                >
+                  Confirm Password
+                </label>
+
+                <button
+                  type="button"
+                  id="togglePassword"
+                  aria-label="Toggle password visibility"
+                  aria-pressed={showConfirmPassword}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute top-1 right-2 p-0.5 flex cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-600 rounded"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="size-[18px] fill-slate-400 text-slate-400 overflow-visible"
+                    viewBox="0 0 128 128"
+                  >
+                    <path d="M64 104C22.127 104 1.367 67.496.504 65.943a4 4 0 0 1 0-3.887C1.367 60.504 22.127 24 64 24s62.633 36.504 63.496 38.057a4 4 0 0 1 0 3.887C126.633 67.496 105.873 104 64 104zM8.707 63.994C13.465 71.205 32.146 96 64 96c31.955 0 50.553-24.775 55.293-31.994C114.535 56.795 95.854 32 64 32 32.045 32 13.447 56.775 8.707 63.994zM64 88c-13.234 0-24-10.766-24-24s10.766-24 24-24 24 10.766 24-24-10.766 24-24 24zm0-40c-8.822 0-16 7.178-16 16s7.178 16 16 16 16-7.178 16-16-7.178-16-16-16z" />
+                    {!showConfirmPassword && (
+                      <path
+                        id="eyeStrike"
+                        className="block"
+                        d="M10.586 10.586l106.828 106.828"
+                        stroke="currentColor"
+                        strokeWidth="10"
+                        strokeLinecap="round"
+                      />
+                    )}
+                  </svg>
+                </button>
+
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  id="confirmPassword"
+                  name="password"
+				  onChange={(e)=> setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
                   required
                   className="px-3 py-2.5 text-sm text-slate-900 rounded-md bg-white w-full outline-1 -outline-offset-1 outline-slate-300 focus:outline-2 focus:-outline-offset-2 focus:outline-orange-600 dark:text-slate-50 dark:bg-neutral-700 dark:outline-neutral-600"

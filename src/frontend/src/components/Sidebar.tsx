@@ -1,4 +1,5 @@
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
+import {useState, useEffect} from "react";
 import { 
   Search, 
   Home, 
@@ -9,13 +10,45 @@ import {
   FileText,
   Plus
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface SidebarProps {
   // We can pass the activfe route or use React Router's <NavLink> later
   activeItem?: string; 
 }
 
+interface Note{
+	_id: string;
+	title: string;
+	excerpt: string;
+	isFavorite: boolean;
+	tags:string[];
+	updatedAt: string[]
+}
+
 const Sidebar = ({ activeItem = 'home' }:SidebarProps) => {
+const [notes, setNotes] = useState<Note[]>([]);
+const navigate = useNavigate();
+const {user} = useAuth();
+  
+  useEffect(()=>{
+	const fetchNotes = async ()=>{
+	if(!user?.token) return;
+		try{
+			const response = await fetch(`${import.meta.env.VITE_API_URL}/api/notes`,{
+				headers:{
+					"Authorization": `Bearer ${user.token}`,
+				}
+			});
+			if(!response.ok) throw new Error("failed to fetch notes");
+			const data = await response.json();
+			setNotes(data);
+		}catch(error){
+			console.error("Error fetching notes:", error);
+		}
+	};
+	fetchNotes();
+  },[user]);
   return (
     <aside className="w-64 h-[90vh] flex flex-col bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 font-sans transition-colors duration-200 fixed z-900">
       
@@ -29,7 +62,9 @@ const Sidebar = ({ activeItem = 'home' }:SidebarProps) => {
         </div>
         
         {/* Primary Action Button (Brand Orange) */}
-        <button className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-md text-sm font-medium transition-colors shadow-sm">
+        <button className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-md text-sm font-medium transition-colors shadow-sm"
+			onClick={() => navigate('/note/new')}
+		>
           <Plus size={16} />
           <span>New Note</span>
         </button>
@@ -47,11 +82,6 @@ const Sidebar = ({ activeItem = 'home' }:SidebarProps) => {
             isActive={activeItem === 'home'} 
           /></Link>
           <SidebarItem icon={<Star size={18} />} label="Favorites" />
-          <SidebarItem 
-            icon={<MessageSquare size={18} />} 
-            label="AI Chat" 
-            isActive={activeItem === 'ai-chat'}
-          />
         </div>
 
         {/* File Tree / Recent Notes */}
@@ -60,18 +90,19 @@ const Sidebar = ({ activeItem = 'home' }:SidebarProps) => {
             Recent Notes
           </h3>
           <div className="space-y-1">
-            <SidebarItem icon={<FileText size={18} />} label="AI App Specs" isActive={activeItem === 'specs'} />
-            <SidebarItem icon={<FileText size={18} />} label="Meeting Notes" />
-            <SidebarItem icon={<FileText size={18} />} label="Journal - Aug 17" />
+		  {notes.map((note)=>{
+			return ( <Link to={`/note/${note._id}`}> <SidebarItem icon={<FileText size={18} />} label={note.title} /> </Link>)
+		  })}
+            
           </div>
         </div>
       </nav>
 
       {/* 3. Footer Navigation */}
-      <div className="p-2 border-t border-slate-200 dark:border-slate-700 space-y-1">
+      {/*<div className="p-2 border-t border-slate-200 dark:border-slate-700 space-y-1">
         <SidebarItem icon={<Trash2 size={18} />} label="Trash" />
         <SidebarItem icon={<Settings size={18} />} label="Settings" />
-      </div>
+      </div>*/}
 
     </aside>
   );

@@ -1,23 +1,28 @@
 import type { ReactNode } from 'react';
-import { useOutletContext } from "react-router-dom";
+import {useEffect} from "react";
+import { useOutletContext, useParams, useNavigate } from "react-router-dom";
 import { useEditor, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Bold, Italic, Strikethrough, Sparkles } from 'lucide-react';
 import { SlashCommandExtension } from '../components/SlashCommand';
+import { useAuth } from '../context/AuthContext';
 
 interface TiptapEditorProps {
   onChange?: (json: any) => void;
 }
 
 interface EditorContext {
-  setEditorContent: (json: any) => void;
+  setEditorContent: (json: any, text: string) => void;
   openAiWithText: (text: string) => void;
 }
 
 const TiptapEditor = ({ onChange }: TiptapEditorProps) => {
   const { setEditorContent, openAiWithText } = useOutletContext<EditorContext>();
+  const {id}= useParams();
+  const navigate = useNavigate();
+  const {user}= useAuth();
 
   const editor = useEditor({
     extensions: [
@@ -32,7 +37,7 @@ const TiptapEditor = ({ onChange }: TiptapEditorProps) => {
     onUpdate: ({ editor }) => {
       const json = editor.getJSON();
       if (onChange) onChange(json);
-      setEditorContent(json);
+      setEditorContent(json, editor.getText());
     },
     editorProps: {
       attributes: {
@@ -40,6 +45,47 @@ const TiptapEditor = ({ onChange }: TiptapEditorProps) => {
       },
     },
   });
+  
+  useEffect(() => {
+const fetchNote = async () => {
+// If the URL is /notes/note/new, don't fetch anything!
+if (!id || id === 'new'){
+	if(editor){
+		editor.commands.setContent("");
+	}
+	return;
+}
+
+
+try {
+const response = await fetch(`${import.meta.env.VITE_API_URL}/api/notes/${id}`, {
+	headers:{
+		"Authorization": `Bearer ${user.token}`,
+	}
+});
+
+if (!response.ok) {
+// If the server says 404 Not Found, kick them back to the home/notes page!
+console.warn("Note not found, redirecting...");
+navigate('/notes'); // Change this to whatever your main list route is
+return;
+}
+
+const noteData = await response.json();
+
+// If successful, inject the saved content into Tiptap
+if (editor && noteData.content) {
+editor.commands.setContent(noteData.content);
+}
+
+} catch (error) {
+console.error("Error fetching note:", error);
+navigate('/notes');
+}
+};
+
+fetchNote();
+}, [id, editor, navigate]);
 
   return (
     <div className="w-[90%] md:w-full max-w-[750px] mx-auto mt-0 sm:mt-8 bg-white dark:bg-slate-800 p-4 sm:p-8 md:p-12 sm:rounded-lg shadow-none sm:shadow-sm border-y sm:border-x border-slate-200 dark:border-slate-700 max-h-[85vh] overflow-y-auto">

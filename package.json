@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@tailwindcss/typography": "^0.5.20",
     "@tiptap/core": "^3.30.5",
     "@tiptap/extension-placeholder": "^3.30.5",
@@ -18,9 +19,12 @@
     "@tiptap/react": "^3.30.1",
     "@tiptap/starter-kit": "^3.30.1",
     "@tiptap/suggestion": "^3.30.5",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.31.0",
     "mongoose": "^9.9.2",
     "react": "^19.2.8",
@@ -31,8 +35,10 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.3",
+    "@types/bcryptjs": "^3.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",

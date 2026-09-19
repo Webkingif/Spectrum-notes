@@ -1,7 +1,18 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, Plus, FileText, ChevronRight, Star } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Search, Plus, FileText, ChevronRight, Star, Trash2 } from 'lucide-react';
 import { mockNotes } from '../../data/mockNotes';
+import { useAuth } from '../context/AuthContext';
+
+interface Note{
+	_id: string;
+	title: string;
+	excerpt: string;
+	isFavorite: boolean;
+	tags:string[];
+	updatedAt: string[]
+}
+
 
 export default function NotesList() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -9,12 +20,39 @@ export default function NotesList() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const navigate = useNavigate();
+  
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [isLoading, setIsLoading]= useState(true);
+  
+  const {user} = useAuth();
+  
+  useEffect(()=>{
+	const fetchNotes = async ()=>{
+	if(!user?.token) return;
+		try{
+			const response = await fetch(`${import.meta.env.VITE_API_URL}/api/notes`,{
+				headers:{
+					"Authorization": `Bearer ${user.token}`,
+				}
+			});
+			if(!response.ok) throw new Error("failed to fetch notes");
+			const data = await response.json();
+			setNotes(data);
+		}catch(error){
+			console.error("Error fetching notes:", error);
+		}finally{
+			setIsLoading(false);
+		}
+	};
+	fetchNotes();
+  },[user]);
+  
 
   // 1. Automatically extract all unique tags from your notes
   const allAvailableTags = useMemo(() => {
-    const tags = mockNotes.flatMap(note => note.tags);
+    const tags = notes.flatMap(note => note.tags);
     return Array.from(new Set(tags)).sort();
-  }, []);
+  }, [notes]);
 
   // 2. The toggle function for tag pills
   const toggleTag = (tag: string) => {
@@ -26,9 +64,7 @@ export default function NotesList() {
   };
 
   // 3. The updated filtering logic
-  const filteredAndSortedNotes = useMemo(() => {
-    return mockNotes
-      .filter((note) => {
+  const filteredAndSortedNotes =notes.filter((note) => {
         // Search Filter
         const matchesSearch =
           note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -46,7 +82,39 @@ export default function NotesList() {
         return matchesSearch && matchesFavorite && matchesTags;
       })
       .sort((a, b) => a.title.localeCompare(b.title));
-  }, [searchQuery, showFavoritesOnly, selectedTags]);
+  
+  const handleDeleteNote = async (e: React.MouseEvent, id: string) => {
+e.stopPropagation(); // Stops the click from opening the note!
+
+// Optional: Ask for confirmation so they don't accidentally delete things
+if (!window.confirm("Are you sure you want to delete this note?")) return;
+
+try {
+// Send the DELETE request to the backend
+const response = await fetch(`${import.meta.env.VITE_API_URL}/api/notes/${id}`, {
+method: 'DELETE',
+				headers:{
+					"Authorization": `Bearer ${user.token}`,
+				}
+});
+
+
+if (!response.ok) throw new Error('Failed to delete note');
+
+// Instantly remove it from the UI list without reloading the page
+setNotes(prevNotes => prevNotes.filter(note => note._id !== id));
+
+// If the user just deleted the note they are currently looking at, redirect them
+//if (currentNoteId === id) {
+//navigate('/note/new');
+//}
+
+} catch (error) {
+console.error("Error deleting note:", error);
+alert("Failed to delete note.");
+}
+};
+  
 
   return (
     <div className="max-w-5xl mx-auto w-full p-4 sm:p-8">
@@ -123,8 +191,8 @@ export default function NotesList() {
           <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
             {filteredAndSortedNotes.map((note) => (
               <div
-                key={note.id}
-                onClick={() => navigate(`/note/${note.id}`)}
+                key={note._id}
+                onClick={() => navigate(`/note/${note._id}`)}
                 className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors group"
               >
                 <div className="flex items-start gap-4 overflow-hidden">
@@ -134,13 +202,20 @@ export default function NotesList() {
                     {note.isFavorite && (
                       <Star size={10} className="absolute -top-1 -right-1 text-amber-500 fill-amber-500" />
                     )}
+					<button
+onClick={(e) => handleDeleteNote(e, note._id)}
+className="p-1 text-red-300 dark:text-red-700 hover:text-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 rounded group-hover:opacity-100 transition-all"
+title="Delete Note"
+>
+<Trash2 size={14} className="text-red-400" />
+</button>
                   </div>
                   <div className="overflow-hidden">
                     <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
-                      {note.title}
+                      {note.title || "Untitled title"}
                     </h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                      {note.excerpt}
+                      {note.excerpt || "No excerpt yet"}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       {note.tags.map(tag => (
