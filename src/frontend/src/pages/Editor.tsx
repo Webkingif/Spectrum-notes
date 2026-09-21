@@ -49,47 +49,53 @@ const TiptapEditor = ({ onChange }: TiptapEditorProps) => {
     },
   });
   
-  useEffect(() => {
-const fetchNote = async () => {
-// If the URL is /notes/note/new, don't fetch anything!
-if (!id || id === 'new'){
-	if(editor){
-		editor.commands.setContent("");
-	}
-	return;
-}
+useEffect(() => {
+    const fetchNote = async () => {
+      // 1. Handle "New Note" route instantly
+      if (!id || id === 'new') {
+        if (editor) {
+          editor.commands.setContent("");
+        }
+        return;
+      }
 
+      // 2. Wait until both the user and the editor are fully initialized before fetching
+      if (!user || !editor) return;
 
-try {
-  if(!user)  return;
-const response = await fetch(`${import.meta.env.VITE_API_URL}/api/notes/${id}`, {
-	headers:{
-		"Authorization": `Bearer ${user.token}`,
-	}
-});
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/notes/${id}`, {
+          headers: {
+            "Authorization": `Bearer ${user.token}`,
+          }
+        });
 
-if (!response.ok) {
-// If the server says 404 Not Found, kick them back to the home/notes page!
-console.warn("Note not found, redirecting...");
-navigate('/notes'); // Change this to whatever your main list route is
-return;
-}
+        if (!response.ok) {
+          // 3. ONLY redirect if the note truly doesn't exist (404). 
+          // This stops the rate-limiter (429) from accidentally kicking you out!
+          if (response.status === 404) {
+            console.warn("Note not found, redirecting...");
+            navigate('/notes');
+          } else {
+            console.warn(`Ignored error ${response.status}: Likely a rate-limit from double-fetching.`);
+          }
+          return;
+        }
 
-const noteData = await response.json();
+        const noteData = await response.json();
 
-// If successful, inject the saved content into Tiptap
-if (editor && noteData.content) {
-editor.commands.setContent(noteData.content);
-}
+        // 4. Inject the saved content into Tiptap
+        if (noteData.content) {
+          editor.commands.setContent(noteData.content);
+        }
 
-} catch (error) {
-console.error("Error fetching note:", error);
-navigate('/notes');
-}
-};
+      } catch (error) {
+        console.error("Error fetching note:", error);
+        // We remove the navigate('/notes') here so a random Wi-Fi drop doesn't kick them out of the editor.
+      }
+    };
 
-fetchNote();
-}, [id, editor, navigate]);
+    fetchNote();
+  }, [id, user, editor, navigate]);
 
   return (
     <div className="w-[90%] md:w-full max-w-[750px] mx-auto mt-0 sm:mt-8 bg-white dark:bg-slate-800 p-4 sm:p-8 md:p-12 sm:rounded-lg shadow-none sm:shadow-sm border-y sm:border-x border-slate-200 dark:border-slate-700 max-h-[85vh] overflow-y-auto">

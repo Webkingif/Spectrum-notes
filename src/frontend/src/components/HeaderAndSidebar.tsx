@@ -1,9 +1,11 @@
 import { Outlet, useMatch, useNavigate } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import Header from "./Header.tsx";
 import Sidebar from "./Sidebar.tsx";
-import AiChatSidebar from "./AiChatSidebar.tsx";
+
 import { useAuth } from '../context/AuthContext';
+
+const AiChatSidebar = lazy(()=> import('./AiChatSidebar'))
 
 function HeaderAndSidebar() {
 	const [isSavedToCloud, setIsSavedToCloud] = useState(true);
@@ -138,7 +140,11 @@ function HeaderAndSidebar() {
 			</div>
 			<div className={`transition-all duration-300 ease-in-out z-20 border-l border-slate-200 dark:border-slate-700 shadow-xl`}>
 				{/* 4. Pass the text down into the AI Sidebar */}
-				{isAiChatOpen && <AiChatSidebar onClose={() => setIsAiChatOpen(false)} highlightedText={aiContextText} getEditorText={()=> editorTextRef.current} />}
+				{isAiChatOpen && (
+					<Suspense fallback={<div className="flex flex-col h-[90vh] bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 w-80 shrink-0 shadow-lg fixed right-0 z-50">Loading AI...</div>}>
+					<AiChatSidebar onClose={() => setIsAiChatOpen(false)} highlightedText={aiContextText} getEditorText={()=> editorTextRef.current} />
+					</Suspense>
+					)}
 			</div>
 			<main className="overflow-y-auto min-h-[600px]">
 				<Outlet context={{ setEditorContent: updateEditorContent, openAiWithText }} />
