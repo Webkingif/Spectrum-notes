@@ -1,10 +1,11 @@
 // src/server.js
 
-import express, {Application} from 'express';
+import express from 'express';
+import type {Application} from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-
+import type { Request, Response} from 'express';
 import noteRoutes from './routes/noteRoutes';
 import authRoutes from "./routes/authRoutes";
 import aiRoutes from "./routes/aiRoutes";
@@ -30,7 +31,7 @@ mongoose.connect(process.env.MONGO_URI as string)
   .catch((err) => console.error('MongoDB connection error:', err));
 
 // Basic route
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: Request, res: Response) => {
   res.json({ message: 'AI Note-taking backend is running!' });
 });
 
