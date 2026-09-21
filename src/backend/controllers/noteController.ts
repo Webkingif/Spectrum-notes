@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import Note from '../models/Note';
-import {AuthRequest} from "../middlewares/authMiddleware";
+import type {AuthRequest} from "../middlewares/authMiddleware";
 
 
 // @desc Create a new note

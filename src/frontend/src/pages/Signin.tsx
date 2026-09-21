@@ -15,7 +15,7 @@ export default function Signin() {
   const {login} = useAuth();
 
   // Get original page or default to /dashboard
-  const from = location.state?.from?.pathname || '/';
+  //const from = location.state?.from?.pathname || '/';
 
   const handleSignIn = async (e:React.FormEvent) => {
     e.preventDefault();
@@ -37,9 +37,15 @@ export default function Signin() {
 		login(data);
 		navigate("/notes");
 		
-	}catch(error:any){
-		console.error("Login error:", error);
-		setError(error.message);
+	}catch(err:any){
+		console.error("Login error:", err);
+
+      const errorMessage = typeof err === 'string' 
+        ? err 
+        : (err?.message || "An unexpected error occurred. Please try again.");
+        
+      setError(errorMessage); 
+      setPassword('');
 	}finally{
 		setIsLoading(false);
 	}
@@ -62,7 +68,7 @@ export default function Signin() {
             </div>
 
             <form className="space-y-6" onSubmit={handleSignIn}>
-			{error && <div className= "text-red-500 text-sm bg-red-50 p-3 rounded">{errpr}</div>}
+			{error && <div className= "text-red-500 text-sm bg-red-50 p-3 rounded">{error}</div>}
               <div>
                 <label
                   htmlFor="email"
@@ -72,6 +78,7 @@ export default function Signin() {
                 </label>
                 <input
 				onChange={(e)=>setEmail(e.target.value)}
+        value={email}
                   type="email"
                   id="email"
                   name="email"
@@ -118,6 +125,7 @@ export default function Signin() {
 
                 <input
 				onChange={(e)=>setPassword(e.target.value)}
+        value={password}
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   name="password"

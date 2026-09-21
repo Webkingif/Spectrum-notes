@@ -12,7 +12,7 @@ export const apiLimiter = rateLimit({
 
 export const authLimiter = rateLimit({
 	windowMs: 60*60*1000,
-	max: 5,
+	max: 53,
 	message: {message: "Too many account attempts from this IP. Try again after an hour"},
 	standardHeaders: true,
 	legacyHeaders: false

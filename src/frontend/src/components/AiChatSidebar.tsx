@@ -63,13 +63,47 @@ export default function AiChatSidebar({ onClose, highlightedText = "", getEditor
           context: getEditorText()
         })
       });
+
+      if(!response.ok) throw new Error('Network response was not ok');
+
       
-      const data = await response.json();
+      //const data = await response.json();
       
       // 5. Add the AI's response to the chat UI
-      setMessages(prev => [...prev, { role: 'ai', content: data.answer }]);
+      //setMessages(prev => [...prev, { role: 'ai', content: data.answer }]);
+      setMessages(prev => [...prev, { role: 'ai', content: "" }]);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No reader available");
+      const decoder = new TextDecoder();
+      let done = false;
+
+      setIsLoading(false);
+      while (!done) {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        
+        if (value) {
+          const chunkText = decoder.decode(value, { stream: true });
+          
+          setMessages(prev => {
+            const updatedMessages = [...prev];
+            const lastIndex = updatedMessages.length - 1;
+            // Append the new text chunk to the last AI message
+            updatedMessages[lastIndex] = {
+              ...updatedMessages[lastIndex],
+              content: updatedMessages[lastIndex].content + chunkText
+            };
+            return updatedMessages;
+          });
+        }
+      }
+
+
+
     } catch (error) {
+      console.error("Streaming error:", error);
       setMessages(prev => [...prev, { role: 'ai', content: "Sorry, I had trouble processing that request." }]);
+      setIsLoading(false);
     } finally {
       setIsLoading(false);
     }

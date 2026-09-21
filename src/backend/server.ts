@@ -1,10 +1,10 @@
 // src/server.js
-
+import dotenv from 'dotenv';
 import express from 'express';
 import type {Application} from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import dotenv from 'dotenv';
+
 import type { Request, Response} from 'express';
 import noteRoutes from './routes/noteRoutes';
 import authRoutes from "./routes/authRoutes";
@@ -40,7 +40,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 //app.get("*", (req,res)=>{
 //	res.sendFile(path.join(__dirname, "../../dist/index.html"));
 //})
-
+console.log("GEMINI KEY STATUS:", process.env.GEMINI_API_KEY ? "✅ LOADED" : "❌ MISSING");
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

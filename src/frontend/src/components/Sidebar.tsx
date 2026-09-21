@@ -4,9 +4,6 @@ import {
   Search, 
   Home, 
   Star, 
-  Settings, 
-  Trash2, 
-  MessageSquare, 
   FileText,
   Plus
 } from 'lucide-react';
@@ -91,7 +88,7 @@ const {user} = useAuth();
           </h3>
           <div className="space-y-1">
 		  {notes.map((note)=>{
-			return ( <Link to={`/note/${note._id}`}> <SidebarItem icon={<FileText size={18} />} label={note.title} /> </Link>)
+			return ( <Link to={`/note/${note._id}`}> <SidebarItem icon={<FileText size={18} />} label={note.title} key={note._id} /> </Link>)
 		  })}
             
           </div>
@@ -126,6 +123,7 @@ const SidebarItem = ({ icon, label, isActive = false }:SidebarItemProps) => {
           ? 'bg-orange-100 dark:bg-[#431407] text-orange-600 dark:text-orange-500' // Active state uses your brand colors
           : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-50'
       }`}
+      key={label}
     >
       {icon}
       <span>{label}</span>

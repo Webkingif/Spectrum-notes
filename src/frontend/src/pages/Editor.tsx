@@ -8,6 +8,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import { Bold, Italic, Strikethrough, Sparkles } from 'lucide-react';
 import { SlashCommandExtension } from '../components/SlashCommand';
 import { useAuth } from '../context/AuthContext';
+import {Markdown} from 'tiptap-markdown';
 
 interface TiptapEditorProps {
   onChange?: (json: any) => void;
@@ -24,9 +25,10 @@ const TiptapEditor = ({ onChange }: TiptapEditorProps) => {
   const navigate = useNavigate();
   const {user}= useAuth();
 
-  const editor = useEditor({
+  const editor:any = useEditor({
     extensions: [
       StarterKit,
+      Markdown,
       Placeholder.configure({
         placeholder: 'Start writing, or type "/" for commands...',
       }),
@@ -36,8 +38,9 @@ const TiptapEditor = ({ onChange }: TiptapEditorProps) => {
     // Combined both onUpdate actions into one!
     onUpdate: ({ editor }) => {
       const json = editor.getJSON();
+      const markdown = (editor.storage as any).markdown.getMarkdown();
       if (onChange) onChange(json);
-      setEditorContent(json, editor.getText());
+      setEditorContent(json, markdown);
     },
     editorProps: {
       attributes: {
@@ -58,6 +61,7 @@ if (!id || id === 'new'){
 
 
 try {
+  if(!user)  return;
 const response = await fetch(`${import.meta.env.VITE_API_URL}/api/notes/${id}`, {
 	headers:{
 		"Authorization": `Bearer ${user.token}`,
