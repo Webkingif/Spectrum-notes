@@ -1,13 +1,31 @@
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 import Note from '../models/Note';
 import type {AuthRequest} from "../middlewares/authMiddleware";
+import User from '../models/User';
 
 
 // @desc Create a new note
 // @route POST /api/notes
 export const createNote = async (req: AuthRequest, res: Response): Promise<void> => {
 try {
-const { title, excerpt, content, isFavorite, tags } = req.body;
+   const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    // 1. Instantly check the counter attached to the user
+    if (user.tier === 'free' && user.noteCount >= 3) {
+      res.status(403).json({ message: "Free tier limit reached.", limitReached: true });
+      return;
+    }
+    
+    if (user.tier === 'plus' && user.noteCount >= 6) {
+      res.status(403).json({ message: "Plus tier limit reached.", limitReached: true });
+      return;
+    }
+   const { title, excerpt, content, isFavorite, tags } = req.body;
 
 if(!req.user){
 	res.status(401).json({message:"User not authenticated"});
@@ -22,6 +40,8 @@ isFavorite,
 tags,
 user: req.user._id
 });
+user.noteCount +=1;
+await user.save();
 
 res.status(201).json(newNote); //sends the response back to the frontend.
 
@@ -102,25 +122,27 @@ res.status(500).json({ message: 'Failed to fetch notes' });
 // @desc Delete a note
 // @route DELETE /api/notes/:id
 export const deleteNote = async (req: AuthRequest, res: Response): Promise<void> => {
-try {
-const { id } = req.params;
+  try {
+    const note = await Note.findById(req.params.id);
 
-// Find the note and delete it from the database
-const deletedNote = await Note.findByIdAndDelete(id);
-
-if (!deletedNote) {
-res.status(404).json({ message: 'Note not found' });
-return;
-}
- if (deletedNote.user.toString() !== req.user._id.toString()) {
-      res.status(401).json({ message: 'Not authorized to view this note' });
+    // Verify note exists and belongs to the user...
+    if (!note || note.user.toString() !== req.user._id.toString()) {
+      res.status(404).json({ message: 'Note not found' });
       return;
     }
-res.status(200).json({ message: 'Note deleted successfully' });
-} catch (error) {
-console.error("Error deleting note:", error);
-res.status(500).json({ message: 'Failed to delete note' });
-}
+
+    await note.deleteOne();
+
+    // DECREMENT THE COUNTER HERE
+    // $inc is a MongoDB operator that safely subtracts 1 from the field
+    await User.findByIdAndUpdate(req.user._id, { 
+      $inc: { noteCount: -1 } 
+    });
+
+    res.status(200).json({ message: 'Note removed' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete note' });
+  }
 };
 
 

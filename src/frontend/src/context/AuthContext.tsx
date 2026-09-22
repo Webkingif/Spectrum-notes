@@ -1,11 +1,14 @@
 
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState } from 'react';
+import type { ReactNode} from 'react';
 
 // 1. Define the shapes of our data
 interface User {
   _id: string;
   email: string;
+ tier: 'free'|'pro'|'plus';
+  noteCount:number;
   token: string;
 }
  

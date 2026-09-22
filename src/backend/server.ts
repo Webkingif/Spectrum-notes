@@ -10,6 +10,7 @@ import noteRoutes from './routes/noteRoutes';
 import authRoutes from "./routes/authRoutes";
 import aiRoutes from "./routes/aiRoutes";
 import {apiLimiter} from "./middlewares/rateLimiter";
+import paymentRoutes from './routes/paymentRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -24,6 +25,7 @@ app.use("/api", apiLimiter);
 app.use('/api/notes', noteRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/ai", aiRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI as string)
