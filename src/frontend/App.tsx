@@ -10,6 +10,7 @@ import Home from "./src/pages/Home";
 import Signin from "./src/pages/Signin";
 import SignUp from "./src/pages/SignUp";
 const Editor = lazy(() => import('./src/pages/Editor'));
+const Billing = lazy(() => import('./src/pages/Billing'));
 
 function App() {
 
@@ -20,22 +21,28 @@ function App() {
 				<Route path="/" element={<Home />} />
 				<Route path="/signin" element={<Signin />} />
 				<Route path="/signup" element={<SignUp />} />
+				
 
 				
 				{/* Protected Routes */}
 				<Route element={<ProtectedRoute />}>
-				<Route path="/notes" element={<NotesList />} />
+					<Route path="/notes" element={<NotesList />} />
+					<Route path="/billing" element={<Billing />} />
 					<Route path="/note" element={<HeaderAndSidebar />}>
 
 						<Route path=":id" element={
 							<Suspense fallback={
-              <div className="flex-1 flex items-center justify-center text-slate-500">
-                Loading editor...
-              </div>
-            }>
-              <Editor />
-            </Suspense>
-							} />
+              						<div className="flex-1 flex items-center justify-center text-slate-500">
+                							Loading editor...
+              						</div>
+            					}>
+              						<Editor />
+            				</Suspense>
+						} />
+						
+
+
+
 					</Route>
 				</Route>
 
