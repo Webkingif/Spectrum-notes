@@ -1,47 +1,33 @@
 // import { useAuth } from '../context/AuthContext';
 // import CheckoutButton from '../components/CheckoutButton';
 
-// export default function BillingPage() {
-//   const { user } = useAuth();
-
-//   // Safely get the tier or default to "Free"
-//   const currentTier = user?.tier ? user.tier.toUpperCase() : 'FREE';
-
-//   return (
-//     <div className="p-6 max-w-xl mx-auto">
-//       <h2 className="text-2xl font-bold mb-2">Subscription & Billing</h2>
-
-//       {/* Dynamically display user.tier */}
-//       <p className="text-gray-600 mb-6">
-//         You are currently on the <span className="font-semibold text-primary">{currentTier}</span> tier.
-//       </p>
-
-//       <div className="flex flex-col sm:flex-row gap-4">
-//         {/* Only show the Plus upgrade button if they aren't already on Plus or Pro */}
-//         {user?.tier !== 'plus' && user?.tier !== 'pro' && (
-//           <CheckoutButton tier="plus" amount={200000} />
-//         )}
-
-//         {/* Only show Pro if they aren't already on Pro */}
-//         {user?.tier !== 'pro' && (
-//           <CheckoutButton tier="pro" amount={500000} />
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 
 import CheckoutButton from '../components/CheckoutButton';
+
 import { useAuth } from '../context/AuthContext';
 
 export default function PricingPage() {
   // 1. Pull the user from context
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="max-w-4xl mx-auto p-8">
+
+      {/* 1. Back to Notes Button */}
+      <div className="mb-8 flex justify-start">
+        <button
+          onClick={() => navigate('/notes')}
+          className="flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors"
+        >
+          <ArrowLeft size={18} />
+          Back to Notes
+        </button>
+      </div>
+
       <h1 className="text-3xl font-bold text-center mb-8">Upgrade Your Workspace</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -62,7 +48,7 @@ export default function PricingPage() {
               Included in Pro
             </button>
           ) : (
-            <CheckoutButton tier="plus" amount={2000} /> // Note: I removed amount here assuming you handle it in the backend now
+            <CheckoutButton tier="plus" amount={2000} />
           )}
         </div>
 

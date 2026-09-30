@@ -6,6 +6,13 @@ import Sidebar from "./Sidebar.tsx";
 import { useAuth } from '../context/AuthContext';
 
 const AiChatSidebar = lazy(() => import('./AiChatSidebar'))
+interface User {
+	_id: string;
+	email: string;
+	tier: 'free' | 'pro' | 'plus';
+	noteCount: number;
+	token: string;
+}
 
 function HeaderAndSidebar() {
 	const [isSavedToCloud, setIsSavedToCloud] = useState(true);
@@ -21,7 +28,7 @@ function HeaderAndSidebar() {
 	const sidebarRef = useRef<HTMLDivElement>(null);
 	const editorContentRef = useRef<any>(null);
 	const editorTextRef = useRef<string>("");
-	const { user } = useAuth();
+	const { user, login } = useAuth();
 
 	const match = useMatch("/note/:id");
 	const navigate = useNavigate();
@@ -78,6 +85,14 @@ function HeaderAndSidebar() {
 			if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 
 			const savedData = await response.json();
+			if (user) {
+				const updatedUser = {
+					...user,
+					noteCount: (user.noteCount || 0) + 1
+				} as User; // Add 'as User' to satisfy TypeScript like we did in billing
+
+				login(updatedUser);
+			}
 			console.log(`Successfully ${isNewNote ? "created" : "updated"}`);
 
 			setIsTitleDialogOpen(false);

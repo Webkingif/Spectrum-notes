@@ -11,6 +11,13 @@ interface Note {
   tags: string[];
   updatedAt: string[]
 }
+interface User {
+  _id: string;
+  email: string;
+  tier: 'free' | 'pro' | 'plus';
+  noteCount: number;
+  token: string;
+}
 
 
 export default function NotesList() {
@@ -23,7 +30,7 @@ export default function NotesList() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { user } = useAuth();
+  const { user, login } = useAuth();
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -102,6 +109,16 @@ export default function NotesList() {
 
       // Instantly remove it from the UI list without reloading the page
       setNotes(prevNotes => prevNotes.filter(note => note._id !== id));
+
+      if (user) {
+        const updatedUser = {
+          ...user,
+          // Use Math.max to ensure the count never accidentally drops below 0
+          noteCount: Math.max((user.noteCount || 1) - 1, 0)
+        } as User;
+
+        login(updatedUser);
+      }
 
 
 
