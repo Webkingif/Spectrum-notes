@@ -16,7 +16,30 @@ const Header = ({ onToggleSidebar, onSave, isSavedToCloud, onToggleAiChat }: Hea
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const {logout} = useAuth();
+  const {user, logout} = useAuth();
+
+  const renderTierBadge = () => {
+    if (user?.tier === 'pro') {
+      return (
+        <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">
+          PRO
+        </span>
+      );
+    }
+    if (user?.tier === 'plus') {
+      return (
+        <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-bold bg-pink-100 text-pink-800 border border-pink-200 dark:bg-pink-900/30 dark:text-pink-400 dark:border-pink-800">
+          PLUS
+        </span>
+      );
+    }
+    
+    return (
+      <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700">
+        FREE
+      </span>
+    );
+  };
 
 
   // 2. Close dropdown when clicking outside
@@ -73,18 +96,27 @@ const Header = ({ onToggleSidebar, onSave, isSavedToCloud, onToggleAiChat }: Hea
           )}
         </div>
       </div>
+      
 
       {/* RIGHT: Global Actions & AI */}
       {/* 3. Wrap right side in ref to detect clicks outside */}
       <div className="flex items-center justify-end gap-3 w-1/3 relative" ref={dropdownRef}>
+      {/* Optional: Show email next to the badge */}
+        <div className="hidden sm:flex items-center text-sm text-slate-600 dark:text-slate-300">
+          {user?.email}
+          {renderTierBadge()}
+        </div>
+      
+        
+        
 
         {/* The AI Action Button (hidden on mobile, visible on sm and up) */}
         <button
-          className="hidden sm:flex no-wrap items-center gap-1.5 px-3 py-1.5 bg-orange-100 dark:bg-[#431407] text-orange-600 dark:text-orange-500 hover:bg-orange-200 dark:hover:bg-orange-900/80 rounded-md text-sm font-medium transition-colors"
+          className="hidden sm:flex whitespace-nowrap items-center gap-1.5 px-3 py-1.5 bg-orange-100 dark:bg-[#431407] text-orange-600 dark:text-orange-500 hover:bg-orange-200 dark:hover:bg-orange-900/80 rounded-md text-sm font-medium transition-colors"
           onClick={onToggleAiChat}
         >
           <Sparkles size={16} />
-          <span>Ask AI</span>
+          <span className='no-wrap flex'>Ask AI</span>
         </button>
 
         {/* Share/Save Button (hidden on mobile, visible on sm and up) */}

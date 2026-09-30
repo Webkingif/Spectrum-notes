@@ -5,7 +5,7 @@ import Sidebar from "./Sidebar.tsx";
 
 import { useAuth } from '../context/AuthContext';
 
-const AiChatSidebar = lazy(()=> import('./AiChatSidebar'))
+const AiChatSidebar = lazy(() => import('./AiChatSidebar'))
 
 function HeaderAndSidebar() {
 	const [isSavedToCloud, setIsSavedToCloud] = useState(true);
@@ -13,23 +13,23 @@ function HeaderAndSidebar() {
 	const [isAiChatOpen, setIsAiChatOpen] = useState(false);
 
 	const [aiContextText, setAiContextText] = useState("");
-	
+
 	const [isTitleDialogOpen, setIsTitleDialogOpen] = useState(false);
 	const [noteTitle, setNoteTitle] = useState("Untitled Note");
-	const [isSaving,setIsSaving] = useState(false);
+	const [isSaving, setIsSaving] = useState(false);
 
 	const sidebarRef = useRef<HTMLDivElement>(null);
 	const editorContentRef = useRef<any>(null);
 	const editorTextRef = useRef<string>("");
-	const {user} = useAuth();
-	
+	const { user } = useAuth();
+
 	const match = useMatch("/note/:id");
 	const navigate = useNavigate();
 	const currentNoteId = match?.params.id;
-	
-	const handleSaveClick = ()=>{
+
+	const handleSaveClick = () => {
 		const editorData = editorContentRef.current;
-		if(!editorData){
+		if (!editorData) {
 			alert("Note is empty");
 			return;
 		}
@@ -38,55 +38,65 @@ function HeaderAndSidebar() {
 
 
 	const confirmSave = async () => {
-		
-		
+
+
 		console.log("Saved JSON Data:", editorContentRef.current);
-		
-		
+
+
 		const editorData = editorContentRef.current;
-		if(!editorData) return;
-		
+		if (!editorData) return;
+
 		setIsSaving(true);
-		
-		try{
-			const isNewNote = !currentNoteId || currentNoteId== "new";
-			const method = isNewNote? "POST" : "PUT";
-			
+
+		try {
+			const isNewNote = !currentNoteId || currentNoteId == "new";
+			const method = isNewNote ? "POST" : "PUT";
+
 			const endpoint = isNewNote
-			? `${import.meta.env.VITE_API_URL}/api/notes`
-			:`${import.meta.env.VITE_API_URL}/api/notes/${currentNoteId}`;
-			
+				? `${import.meta.env.VITE_API_URL}/api/notes`
+				: `${import.meta.env.VITE_API_URL}/api/notes/${currentNoteId}`;
+
 			const response = await fetch(endpoint, {
 				method: method,
-				headers: {"Content-Type": "application/json", "Authorization": `Bearer ${user?.token}`,},
+				headers: { "Content-Type": "application/json", "Authorization": `Bearer ${user?.token}`, },
 				body: JSON.stringify({
 					title: noteTitle,
 					content: editorData,
 				})
 			})
-			
-			if(!response.ok) throw new Error (`HTTP error! status: ${response.status}`)
-			
+
+			if (response.status === 403) {
+				const errorData = await response.json();
+
+				if (errorData.limitReached) {
+					alert(errorData.message);
+					navigate('/billing');
+					return;
+				}
+			}
+
+			if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+
 			const savedData = await response.json();
-			console.log(`Successfully ${isNewNote? "created":"updated"}`);
-			
+			console.log(`Successfully ${isNewNote ? "created" : "updated"}`);
+
 			setIsTitleDialogOpen(false);
 			setIsSavedToCloud(true);
-			if(isNewNote && savedData._id){
-				navigate(`/note/${savedData._id}`, {replace: true});
+			if (isNewNote && savedData._id) {
+				navigate(`/note/${savedData._id}`, { replace: true });
 			}
-			
-			
-			
-		}catch(error){
+
+
+
+		} catch (error) {
 			console.error("Error saving Note", error);
 			alert("Failed to save note. Please check your connection");
-		}finally{
+		} finally {
 			setIsSaving(false);
-			
+
 			setIsTitleDialogOpen(false);
 		}
-		
+
 
 	};
 
@@ -143,54 +153,54 @@ function HeaderAndSidebar() {
 				{/* 4. Pass the text down into the AI Sidebar */}
 				{isAiChatOpen && (
 					<Suspense fallback={<div className="flex flex-col h-[90vh] bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 w-80 shrink-0 shadow-lg fixed right-0 z-50">Loading AI...</div>}>
-					<AiChatSidebar onClose={() => setIsAiChatOpen(false)} highlightedText={aiContextText} getEditorText={()=> editorTextRef.current} />
+						<AiChatSidebar onClose={() => setIsAiChatOpen(false)} highlightedText={aiContextText} getEditorText={() => editorTextRef.current} />
 					</Suspense>
-					)}
+				)}
 			</div>
 			<main className="overflow-y-auto min-h-[600px]">
 				<Outlet context={{ setEditorContent: updateEditorContent, openAiWithText }} />
 			</main>
 
 			{/*</div>*/}
-			
+
 			{/* title modal overlay */}
 			{isTitleDialogOpen && (
 				<div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm px-4">
-<div className="bg-white dark:bg-slate-800 w-full max-w-md p-6 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700">
+					<div className="bg-white dark:bg-slate-800 w-full max-w-md p-6 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700">
 
-<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-4">
-Name your note
-</h3>
+						<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-4">
+							Name your note
+						</h3>
 
-<input
-type="text"
-value={noteTitle}
-onChange={(e) => setNoteTitle(e.target.value)}
-placeholder="e.g., Project Meeting Notes"
-className="w-full px-3 py-2 mb-6 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 dark:text-white"
-autoFocus
-/>
+						<input
+							type="text"
+							value={noteTitle}
+							onChange={(e) => setNoteTitle(e.target.value)}
+							placeholder="e.g., Project Meeting Notes"
+							className="w-full px-3 py-2 mb-6 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 dark:text-white"
+							autoFocus
+						/>
 
-<div className="flex justify-end gap-3">
-<button
-onClick={() => setIsTitleDialogOpen(false)}
-className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
-disabled={isSaving}
->
-Cancel
-</button>
+						<div className="flex justify-end gap-3">
+							<button
+								onClick={() => setIsTitleDialogOpen(false)}
+								className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
+								disabled={isSaving}
+							>
+								Cancel
+							</button>
 
-<button
-onClick={confirmSave}
-className="px-4 py-2 text-sm font-medium bg-orange-600 text-white hover:bg-orange-700 rounded-md transition-colors flex items-center gap-2"
-disabled={isSaving}
->
-{isSaving ? "Saving..." : "Save Note"}
-</button>
-</div>
+							<button
+								onClick={confirmSave}
+								className="px-4 py-2 text-sm font-medium bg-orange-600 text-white hover:bg-orange-700 rounded-md transition-colors flex items-center gap-2"
+								disabled={isSaving}
+							>
+								{isSaving ? "Saving..." : "Save Note"}
+							</button>
+						</div>
 
-</div>
-</div>
+					</div>
+				</div>
 			)}
 
 
