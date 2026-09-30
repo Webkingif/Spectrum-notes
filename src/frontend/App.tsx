@@ -1,6 +1,6 @@
 
 import './App.css';
-import {lazy, Suspense} from 'react';
+import { lazy, Suspense } from 'react';
 import { Routes, Route } from "react-router-dom";
 import HeaderAndSidebar from "./src/components/HeaderAndSidebar";
 import ProtectedRoute from "./src/components/ProtectedRoute";
@@ -11,6 +11,7 @@ import Signin from "./src/pages/Signin";
 import SignUp from "./src/pages/SignUp";
 const Editor = lazy(() => import('./src/pages/Editor'));
 const Billing = lazy(() => import('./src/pages/Billing'));
+import PricingPage from './src/pages/Pricing';
 
 function App() {
 
@@ -21,9 +22,10 @@ function App() {
 				<Route path="/" element={<Home />} />
 				<Route path="/signin" element={<Signin />} />
 				<Route path="/signup" element={<SignUp />} />
-				
+				<Route path="/pricing" element={<PricingPage />} />
 
-				
+
+
 				{/* Protected Routes */}
 				<Route element={<ProtectedRoute />}>
 					<Route path="/notes" element={<NotesList />} />
@@ -32,14 +34,14 @@ function App() {
 
 						<Route path=":id" element={
 							<Suspense fallback={
-              						<div className="flex-1 flex items-center justify-center text-slate-500">
-                							Loading editor...
-              						</div>
-            					}>
-              						<Editor />
-            				</Suspense>
+								<div className="flex-1 flex items-center justify-center text-slate-500">
+									Loading editor...
+								</div>
+							}>
+								<Editor />
+							</Suspense>
 						} />
-						
+
 
 
 
